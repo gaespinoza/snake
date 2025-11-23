@@ -1,0 +1,25 @@
+module(
+    name = "snake", 
+)
+bazel_dep(name = "rules_go", version = "0.59.0")
+bazel_dep(name = "gazelle", version = "0.47.0")
+
+go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
+
+go_sdk.download(version = "1.24.1")
+
+# Make the toolchains from the Go SDK available
+use_repo(go_sdk, "go_toolchains") 
+
+# --- Gazelle Integration for Go Dependencies ---
+# Use the go_deps extension to read your go.mod file.
+go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
+
+# Point Gazelle to your Go module file
+go_deps.from_file(go_mod = "//:go.mod")
+
+# Expose the repositories created by go_deps to your main module.
+# Use 'bazel mod tidy' later to automatically fill this list with needed repos.
+use_repo(
+    go_deps,
+)
