@@ -11,6 +11,14 @@ go_library(
     srcs = ["main.go"],
     importpath = "github.com/gaespinoza/snake",
     visibility = ["//visibility:private"],
+    deps = [
+        "//state",
+        "@org_gioui//app",
+        "@org_gioui//font/gofont",
+        "@org_gioui//op",
+        "@org_gioui//text",
+        "@org_gioui//widget/material",
+    ],
 )
 
 go_binary(
