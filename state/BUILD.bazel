@@ -1,0 +1,24 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "state",
+    srcs = [
+        "game.go",
+        "home.go",
+        "state.go",
+    ],
+    importpath = "github.com/gaespinoza/snake/state",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//models",
+        "//utils",
+        "@org_gioui//font",
+        "@org_gioui//layout",
+        "@org_gioui//op",
+        "@org_gioui//op/clip",
+        "@org_gioui//op/paint",
+        "@org_gioui//unit",
+        "@org_gioui//widget",
+        "@org_gioui//widget/material",
+    ],
+)

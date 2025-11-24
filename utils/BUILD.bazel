@@ -1,0 +1,14 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "utils",
+    srcs = ["draw.go"],
+    importpath = "github.com/gaespinoza/snake/utils",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@org_gioui//layout",
+        "@org_gioui//unit",
+        "@org_gioui//widget",
+        "@org_gioui//widget/material",
+    ],
+)
