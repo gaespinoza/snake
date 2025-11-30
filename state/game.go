@@ -15,6 +15,14 @@ import (
 	"github.com/gaespinoza/snake/models"
 )
 
+var (
+	Green     color.NRGBA = color.NRGBA{R: 0, G: 100, B: 0, A: 255}
+	DarkGreen color.NRGBA = color.NRGBA{R: 0, G: 150, B: 0, A: 255}
+	White     color.NRGBA = color.NRGBA{R: 255, G: 255, B: 255, A: 255}
+	LightGray color.NRGBA = color.NRGBA{R: 200, G: 200, B: 200, A: 255}
+	Red       color.NRGBA = color.NRGBA{R: 150, G: 0, B: 0, A: 255}
+)
+
 type GameUi struct {
 	BackButton widget.Clickable
 
@@ -32,6 +40,9 @@ func NewGameState(rows, columns int) (*GameUi, error) {
 }
 
 func GetGameLayout(gtx layout.Context, th *material.Theme, game *GameUi) layout.Dimensions {
+	if game == nil {
+		return layout.Dimensions{}
+	}
 	return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 		// 1. Header (Back Button + Score)
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
@@ -39,7 +50,7 @@ func GetGameLayout(gtx layout.Context, th *material.Theme, game *GameUi) layout.
 				return layout.Flex{Axis: layout.Horizontal, Spacing: layout.SpaceBetween, Alignment: layout.Middle}.Layout(gtx,
 					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 						btn := material.Button(th, &game.BackButton, "BACK")
-						btn.Background = color.NRGBA{R: 150, G: 0, B: 0, A: 255}
+						btn.Background = Red
 						btn.Inset = layout.UniformInset(unit.Dp(8))
 						return btn.Layout(gtx)
 					}),
@@ -96,7 +107,7 @@ func layoutBoard(gtx layout.Context, model *models.Game) layout.Dimensions {
 	// 3. Draw Background (The Grid)
 	// Light grey background for the whole board
 	paint.FillShape(gtx.Ops,
-		color.NRGBA{R: 240, G: 240, B: 240, A: 255},
+		LightGray,
 		clip.Rect{Max: image.Pt(boardWidth, boardHeight)}.Op(),
 	)
 
@@ -112,41 +123,28 @@ func layoutBoard(gtx layout.Context, model *models.Game) layout.Dimensions {
 			// We do this by drawing a slightly smaller rect inside the cell area
 			// or just by having a background color and drawing cells with gaps.
 			// Here is a simple stroke effect by drawing a smaller rect:
-			padding := 1 // 1 pixel gap
+			padding := 2 // 1 pixel gap
 			cellRect := image.Rect(x+padding, y+padding, x+cellSize-padding, y+cellSize-padding)
 
+			colorToUse := LightGray
+
+			switch model.Board.Cells[r][c].State {
+			case models.FilledCell:
+				colorToUse = Green
+			case models.HeadCell:
+				colorToUse = DarkGreen
+			case models.FoodCell:
+				colorToUse = Red
+			case models.EmptyCell:
+			default:
+				colorToUse = White
+			}
+
 			paint.FillShape(gtx.Ops,
-				color.NRGBA{R: 255, G: 255, B: 255, A: 255}, // White cell
+				colorToUse,
 				clip.Rect(cellRect).Op(),
 			)
 		}
-	}
-
-	// 4. Draw the Snake
-	// Iterate through the linked list
-	currentNode := model.Snake.Head
-	for currentNode != nil {
-		x := currentNode.Column * cellSize
-		y := currentNode.Row * cellSize
-
-		// Snake color (Green)
-		snakeColor := color.NRGBA{R: 0, G: 150, B: 0, A: 255}
-
-		// If it's the head, maybe make it darker?
-		if currentNode == model.Snake.Head {
-			snakeColor = color.NRGBA{R: 0, G: 100, B: 0, A: 255}
-		}
-
-		// Draw the snake segment
-		// We use slightly smaller rects than the full cell size for a nice look
-		segmentRect := image.Rect(x+1, y+1, x+cellSize-1, y+cellSize-1)
-
-		paint.FillShape(gtx.Ops,
-			snakeColor,
-			clip.Rect(segmentRect).Op(),
-		)
-
-		currentNode = currentNode.Next
 	}
 
 	return layout.Dimensions{Size: availSize}
