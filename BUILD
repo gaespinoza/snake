@@ -12,9 +12,11 @@ go_library(
     importpath = "github.com/gaespinoza/snake",
     visibility = ["//visibility:private"],
     deps = [
+        "//models",
         "//state",
         "@org_gioui//app",
         "@org_gioui//font/gofont",
+        "@org_gioui//io/key",
         "@org_gioui//op",
         "@org_gioui//text",
         "@org_gioui//widget/material",
